@@ -1,0 +1,33 @@
+name: MySQL Sample Action
+on: workflow_dispatch
+
+jobs:
+  job:
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: hoge
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_USER: hoge
+          MYSQL_PASSWORD: hoge
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install MySQL Client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get -f install -o Dpkg::Options::="--force-overwrite"
+
+      - name: Seeding Initial Data
+        run: |
+          mysql -h 127.0.0.1 -uhoge -phoge -e "show databases;"
+          mysql -h 127.0.0.1 -uhoge -phoge hoge < ./sql/table.sql
+          mysql -h 127.0.0.1 -uhoge -phoge hoge < ./sql/data.sql
+
